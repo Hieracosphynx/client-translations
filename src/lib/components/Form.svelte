@@ -1,24 +1,43 @@
 <script lang="ts">
 import "../../app.css";
+import { goto } from "$app/navigation";
+import { page } from "$app/stores";
 import { enhance } from "$app/forms";
+import { LanguageCode } from "$lib/enum/language.enum";
+import type{ LocalizedTextType, LTSearchParams } from "$lib/types/localizedText.types";
 
-type LocalizedText =
+const getLanguageCode = (value: number): string => LanguageCode[value];
+
+const ltSearchParams: LTSearchParams = { gameFranchise: "", gameName: "" }
+let localizedTexts: Array<LocalizedTextType> = [];
+let files: File;
+
+const setQueries = () =>
 {
-    id: string;
-    gameFranchise: string;
-    gameName: string;
-    language: number;
-    text: string;
-}
+    for(const [key, value] of Object.entries(ltSearchParams))
+    {
+        if($page.url.searchParams.has(key) && (value == "" || value == null))
+        {
+            $page.url.searchParams.delete(value);
+        }
+        else
+        {
+            $page.url.searchParams.set(key, value);
+        }
 
-let gameFranchise = "";
-let gameName = "";
-let localizedTexts: Array<LocalizedText> = [];
+        goto(`?${$page.url.searchParams}`);
+    }
+}
 
 const onClick = async () => 
 { 
     const response = await fetch('/api/translations');
     localizedTexts = await response.json();
+}
+
+$: if(files)
+{
+    console.log(files);
 }
 
 </script>
@@ -27,28 +46,29 @@ const onClick = async () =>
     <div>
         <label>
             <h6>Game Franchise</h6>
-            <input type="text" class="border-gray-800 rounded-md border-2" bind:value={gameFranchise} />
+            <input type="text" class="border-gray-800 rounded-md border-2" bind:value={ltSearchParams.gameFranchise} on:change={ setQueries }/>
         </label>
         <label>
             <h6>Game Name</h6>
-            <input type="text" class="border-gray-800 rounded-md border-2" bind:value={gameName} />
+            <input type="text" class="border-gray-800 rounded-md border-2" bind:value={ltSearchParams.gameName} on:change={ setQueries }/>
         </label>
         <label>
             <h6>Text</h6>
             <textarea class="border-2 rounded-md border-gray-600" />
         </label>
     </div>
-    <form method="POST" use:enhance>
+    <form method="POST" action="/api/translations" use:enhance>
         <label>
             <h6>Files:</h6>
-            <input type="file" class="border-2 rounded-sm border-gray-600" />
+            <input type="file" class="border-2 rounded-sm border-gray-600" bind:value={files} />
         </label>
         <div>
             <!-- Might as well as put the styling to a css folder -->
-            <button type="submit" class="border-2 rounded-sm border-gray-600" on:click|preventDefault={onClick}>Submit</button>
-            <button type="submit" class="border-2 rounded-sm border-gray-600" on:click|preventDefault>Upload</button>
+            <button type="submit" class="border-2 rounded-sm border-gray-600" name="files">Upload</button>
         </div>
     </form>
+    <button class="border-2 rounded-sm border-gray-600" on:click|preventDefault={onClick}>Submit</button>
+
     {#if localizedTexts.length > 0}
         <table class="table-auto border-separate border-spacing-2">
             <tr class="border border-solid border-slate-500">
@@ -61,7 +81,7 @@ const onClick = async () =>
                 <tr>
                     <td class="border border-solid border-slate-500">{localizedText.gameFranchise}</td>
                     <td class="border border-solid border-slate-500">{localizedText.gameName}</td>
-                    <td class="border border-solid border-slate-500">{localizedText.language}</td>
+                    <td class="border border-solid border-slate-500">{getLanguageCode(localizedText.language)}</td>
                     <td class="border border-solid border-slate-500">{localizedText.text}</td>
                 </tr>
             {/each}
