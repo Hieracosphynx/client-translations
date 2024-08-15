@@ -2,36 +2,49 @@
 import "../../app.css";
 import { goto } from "$app/navigation";
 import { page } from "$app/stores";
+import { browser } from "$app/environment";
 import { enhance } from "$app/forms";
 import { LanguageCode } from "$lib/enum/language.enum";
-import type{ LocalizedTextType, LTSearchParams } from "$lib/types/localizedText.types";
+import type{ LocalizedTextType, LocalizedTextSearchParams } from "$lib/types/localizedText.types";
 
 const getLanguageCode = (value: number): string => LanguageCode[value];
 
-const ltSearchParams: LTSearchParams = { gameFranchise: "", gameName: "" }
+const ltSearchParams: LocalizedTextSearchParams = { gameFranchise: "", gameName: "" }
 let localizedTexts: Array<LocalizedTextType> = [];
 let files: File;
 
 const setQueries = () =>
 {
+    //for(const [key, value] of Object.entries(ltSearchParams))
+    //{
+        //if($page.url.searchParams.has(key) && (value == "" || value == null))
+        //{
+            //$page.url.searchParams.delete(value);
+        //}
+        //else
+        //{
+            //$page.url.searchParams.set(key, value);
+        //}
+
+        //goto(`?${$page.url.searchParams}`);
+    //}
+}
+
+$: { 
     for(const [key, value] of Object.entries(ltSearchParams))
     {
-        if($page.url.searchParams.has(key) && (value == "" || value == null))
-        {
-            $page.url.searchParams.delete(value);
-        }
-        else
-        {
-            $page.url.searchParams.set(key, value);
-        }
-
-        goto(`?${$page.url.searchParams}`);
+        $page.url.searchParams.set(key, value);
+        if($page.url.searchParams.get(key) == "") { $page.url.searchParams.delete(key); }
     }
-}
+    if(browser) { goto(`?${$page.url.searchParams}`, { keepFocus: true })};
+    //$page.url.searchParams.set("gameFranchise", ltSearchParams.gameFranchise);
+    //$page.url.searchParams.set("gameName", ltSearchParams.gameName);
+    //goto(`?${$page.url.searchParams}`, { keepFocus: true });
+}; 
 
 const onClick = async () => 
 { 
-    const response = await fetch('/api/translations');
+    const response = await fetch(`/api/translations?${$page.url.searchParams}`);
     localizedTexts = await response.json();
 }
 

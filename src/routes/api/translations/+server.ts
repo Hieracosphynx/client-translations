@@ -1,8 +1,8 @@
 import type { ActionResult, RequestEvent } from '@sveltejs/kit';
 
-export async function GET()
+export async function GET({ params, url } : RequestEvent)
 {
-    const results = await fetch('http://localhost:5162/api/Translations');
+    const results = await fetch(`http://localhost:5162/api/Translations?${url.searchParams}`);
     console.log(results);
     return results;
 }

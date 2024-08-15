@@ -7,7 +7,7 @@ export type LocalizedTextType =
     text: string;
 }
 
-export type LTSearchParams =
+export type LocalizedTextSearchParams =
 {
     gameFranchise: string;
     gameName: string;
