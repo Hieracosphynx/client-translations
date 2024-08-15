@@ -13,33 +13,13 @@ const ltSearchParams: LocalizedTextSearchParams = { gameFranchise: "", gameName:
 let localizedTexts: Array<LocalizedTextType> = [];
 let files: File;
 
-const setQueries = () =>
-{
-    //for(const [key, value] of Object.entries(ltSearchParams))
-    //{
-        //if($page.url.searchParams.has(key) && (value == "" || value == null))
-        //{
-            //$page.url.searchParams.delete(value);
-        //}
-        //else
-        //{
-            //$page.url.searchParams.set(key, value);
-        //}
-
-        //goto(`?${$page.url.searchParams}`);
-    //}
-}
-
 $: { 
     for(const [key, value] of Object.entries(ltSearchParams))
     {
         $page.url.searchParams.set(key, value);
         if($page.url.searchParams.get(key) == "") { $page.url.searchParams.delete(key); }
     }
-    if(browser) { goto(`?${$page.url.searchParams}`, { keepFocus: true })};
-    //$page.url.searchParams.set("gameFranchise", ltSearchParams.gameFranchise);
-    //$page.url.searchParams.set("gameName", ltSearchParams.gameName);
-    //goto(`?${$page.url.searchParams}`, { keepFocus: true });
+    if(browser) { goto(`?${$page.url.searchParams}`, { keepFocus: true, replaceState: false })};
 }; 
 
 const onClick = async () => 
@@ -48,22 +28,17 @@ const onClick = async () =>
     localizedTexts = await response.json();
 }
 
-$: if(files)
-{
-    console.log(files);
-}
-
 </script>
 
 <div class="w-full h-full flex flex-1 flex-col justify-items-center items-center">
     <div>
         <label>
             <h6>Game Franchise</h6>
-            <input type="text" class="border-gray-800 rounded-md border-2" bind:value={ltSearchParams.gameFranchise} on:change={ setQueries }/>
+            <input type="text" class="border-gray-800 rounded-md border-2" bind:value={ltSearchParams.gameFranchise} />
         </label>
         <label>
             <h6>Game Name</h6>
-            <input type="text" class="border-gray-800 rounded-md border-2" bind:value={ltSearchParams.gameName} on:change={ setQueries }/>
+            <input type="text" class="border-gray-800 rounded-md border-2" bind:value={ltSearchParams.gameName} />
         </label>
         <label>
             <h6>Text</h6>

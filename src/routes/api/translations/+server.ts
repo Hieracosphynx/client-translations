@@ -1,10 +1,8 @@
 import type { ActionResult, RequestEvent } from '@sveltejs/kit';
 
-export async function GET({ params, url } : RequestEvent)
+export async function GET({ url } : RequestEvent)
 {
-    const results = await fetch(`http://localhost:5162/api/Translations?${url.searchParams}`);
-    console.log(results);
-    return results;
+    return await fetch(`http://localhost:5162/api/Translations/search?${url.searchParams}`);
 }
 
 export async function POST(event: RequestEvent<{}, string | null>): Promise<Response>
@@ -22,10 +20,3 @@ export async function POST(event: RequestEvent<{}, string | null>): Promise<Resp
 
     return new Response(JSON.stringify(response));
 }
-
-//export const actions = {
-    //upload: async ({ cookies, request } : Actions) => 
-    //{
-        //console.log("No Idea");
-    //}
-//}
