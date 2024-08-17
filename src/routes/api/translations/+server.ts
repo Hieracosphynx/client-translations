@@ -1,22 +1,21 @@
-import type { ActionResult, RequestEvent } from '@sveltejs/kit';
+import type { RequestEvent } from '@sveltejs/kit';
 
 export async function GET({ url } : RequestEvent)
 {
     return await fetch(`http://localhost:5162/api/Translations/search?${url.searchParams}`);
 }
 
-export async function POST(event: RequestEvent<{}, string | null>): Promise<Response>
+export async function POST({ url, request } : RequestEvent): Promise<Response>
 {
-    const body = await event.request.formData();
-    const params = event.params;
-    const files = body.get('files') as File;
+    const formData = await request.formData();
 
-    console.log({...params});
+    //fileEntries.forEach()
 
-    const response = { type: "success" }/*await fetch('http://localhost:5162/api/Translations', {
+    const response = await fetch(`http://localhost:5162/api/Translations/upload?${url.searchParams}`, {
         method: "POST",
-        body
-    })*/
+        body: formData
+    });
 
-    return new Response(JSON.stringify(response));
+    return new Response();
+    //return new Response(JSON.stringify(response));
 }

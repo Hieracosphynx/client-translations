@@ -11,7 +11,7 @@ const getLanguageCode = (value: number): string => LanguageCode[value];
 
 const ltSearchParams: LocalizedTextSearchParams = { gameFranchise: "", gameName: "" }
 let localizedTexts: Array<LocalizedTextType> = [];
-let files: File;
+let files: FileList;
 
 $: { 
     for(const [key, value] of Object.entries(ltSearchParams))
@@ -26,6 +26,26 @@ const onClick = async () =>
 { 
     const response = await fetch(`/api/translations?${$page.url.searchParams}`);
     localizedTexts = await response.json();
+}
+
+const onUpload = async (): Promise<Response> =>
+{
+    const formData = new FormData();
+
+    for(let fileIndex = 0; fileIndex < files.length; fileIndex++)
+    {
+        const file = files.item(fileIndex);
+        if(file) { formData.append('fileEntries', file); }
+    }
+
+    const response = await fetch(`/api/translations?${$page.url.searchParams}`, 
+        {
+            method: "POST",
+            body: formData
+        });
+
+    console.log(response);
+    return response;
 }
 
 </script>
@@ -45,14 +65,14 @@ const onClick = async () =>
             <textarea class="border-2 rounded-md border-gray-600" />
         </label>
     </div>
-    <form method="POST" action="/api/translations" use:enhance>
+    <form on:submit|preventDefault={onUpload}>
         <label>
             <h6>Files:</h6>
-            <input type="file" class="border-2 rounded-sm border-gray-600" bind:value={files} />
+            <input bind:files multiple type="file" class="border-2 rounded-sm border-gray-600"/>
         </label>
         <div>
             <!-- Might as well as put the styling to a css folder -->
-            <button type="submit" class="border-2 rounded-sm border-gray-600" name="files">Upload</button>
+            <button type="submit" class="border-2 rounded-sm border-gray-600">Upload</button>
         </div>
     </form>
     <button class="border-2 rounded-sm border-gray-600" on:click|preventDefault={onClick}>Submit</button>

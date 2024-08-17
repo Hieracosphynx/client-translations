@@ -7,5 +7,6 @@ export enum LanguageCode
     en_US,
     en_GB,
     ja_JP,
-    ro_RO
+    ro_RO,
+    tr_TR
 }
